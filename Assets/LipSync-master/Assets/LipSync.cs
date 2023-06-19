@@ -14,7 +14,7 @@ public class LipSync : MonoBehaviour
     int fMax = 24000;
 
     private float y0;
-    public AudioSource audio;
+    public AudioSource audioSource;
     public int bsIndex;
     public float aperture;
     private float[] freqData;
@@ -29,7 +29,7 @@ public class LipSync : MonoBehaviour
     void Start()
     {
         nSamples = 256;
-        audio = GetComponent<AudioSource>(); // get AudioSource component
+        audioSource = GetComponent<AudioSource>(); // get AudioSource component
 
         //if it is jaw, get the initial scale
         if (isJaw)
@@ -43,7 +43,7 @@ public class LipSync : MonoBehaviour
         freqData = new float[nSamples];
 
         //maybe you are already playing, so just comment this
-        audio.Play();
+        audioSource.Play();
     }
 
     // Update is called once per frame
@@ -67,7 +67,7 @@ public class LipSync : MonoBehaviour
         fLow = Mathf.Clamp(fLow, 20, fMax); // limit low...
         fHigh = Mathf.Clamp(fHigh, fLow, fMax); // and high frequencies
         // get spectrum: freqData[n] = vol of frequency n * fMax / nSamples
-        audio.GetSpectrumData(freqData, 0, FFTWindow.BlackmanHarris);
+        audioSource.GetSpectrumData(freqData, 0, FFTWindow.BlackmanHarris);
         int n1 = (int)Mathf.Floor(fLow * nSamples / fMax);
         int n2 = (int)Mathf.Floor(fHigh * nSamples / fMax);
         float sum = 0;

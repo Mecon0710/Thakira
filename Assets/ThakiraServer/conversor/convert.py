@@ -2,6 +2,7 @@ import openai
 import os
 from gtts import gTTS
 from pydub import AudioSegment
+from pydub.exceptions import InvalidDuration
 
 def audio_to_text(path):
     #audio = AudioSegment.from_mp3(path)
@@ -12,24 +13,48 @@ def audio_to_text(path):
     return transcript
 
 
-def text_to_audio(message):
-    file = 'audios/output/teen.mp3'
+
+
+def text_to_audio(message, crossfade=100):
+    file = './audios/output/teen.mp3' 
+    temporal = './audios/output/temp.mp3'
+    if type(message) == tuple:
+        message = message[0]
+    print("message: ")
+    print(message)
     tts = gTTS(text=message, lang='es', tld="es", slow=False)
+    factor = 1.25
 
     # Guardar el audio generado por gTTS en un archivo temporal
-    tts.save('audios/output/temp.mp3')
+    tts.save(temporal)
 
-    # Cargar el audio con pydub
-    audio = AudioSegment.from_file('audios/output/temp.mp3')
+    try:
+        # Cargar el audio con pydub
+        audio = AudioSegment.from_file(temporal)
 
-    # Aumentar la velocidad en un factor determinado (acelerar)
-    factor = 0.8
-    audio_acelerado = audio.speedup(playback_speed=factor)
+        # Aumentar la velocidad en un factor determinado (acelerar) si la duración es mayor a cero
+        if len(audio) > 0:
+            if len(audio) > crossfade * 2:
+                # Aplicar el fundido solo si la duración del audio es mayor al doble del fundido
+                crossfade = min(crossfade, len(audio) // 2)
+                audio_acelerado = audio.speedup(playback_speed=factor).fade_in(crossfade).fade_out(crossfade)
+            else:
+                audio_acelerado = audio
+        else:
+            audio_acelerado = audio
 
-    # Guardar el audio acelerado en un nuevo archivo
-    audio_acelerado.export(file, format='mp3')
+        print("audio_acelerado!!!")
+        # Guardar el audio acelerado en un nuevo archivo
+        audio_acelerado.export(file, format='mp3')
+
+    except InvalidDuration:
+        # En caso de duración cero o inválida, guardar el audio original sin modificar
+        tts.save(file)
 
     # Eliminar el archivo temporal
-    os.remove('audios/output/temp.mp3')
+    os.remove(temporal)
 
     return "ok"
+
+
+

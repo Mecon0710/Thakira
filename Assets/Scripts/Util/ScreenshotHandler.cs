@@ -2,8 +2,7 @@ using System;
 using System.IO;
 using System.Collections;
 using UnityEngine;
-
-public class ScreenshotHandler {
+public class ScreenshotHandler: MonoBehaviour {
 
     //Save path
     public static string savePath = "Photos";

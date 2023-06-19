@@ -26,9 +26,6 @@ public class animals : MovingEntity
         MoveTowards(towardsTarget.normalized);
         if(towardsTarget.z %0.4 ==0 || towardsTarget.y %0.1 ==0 || towardsTarget.x %0.3 ==0){
                         RecalculateTargetPosition();
-                        Debug.Log("y"+towardsTarget.y);
-                        Debug.Log("x"+towardsTarget.x);
-                        Debug.Log("z"+towardsTarget.z);
         }
         
     }

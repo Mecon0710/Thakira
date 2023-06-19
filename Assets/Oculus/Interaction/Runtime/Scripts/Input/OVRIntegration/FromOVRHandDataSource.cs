@@ -1,14 +1,22 @@
-﻿/************************************************************************************
-Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
-
-Your use of this SDK or tool is subject to the Oculus SDK License Agreement, available at
-https://developer.oculus.com/licenses/oculussdk/
-
-Unless required by applicable law or agreed to in writing, the Utilities SDK distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
-ANY KIND, either express or implied. See the License for the specific language governing
-permissions and limitations under the License.
-************************************************************************************/
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * Licensed under the Oculus SDK License Agreement (the "License");
+ * you may not use the Oculus SDK except in compliance with the License,
+ * which is provided at the time of installation or download, or which
+ * otherwise accompanies this software in either electronic or hard copy form.
+ *
+ * You may obtain a copy of the License at
+ *
+ * https://developer.oculus.com/licenses/oculussdk/
+ *
+ * Unless required by applicable law or agreed to in writing, the Oculus SDK
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -20,23 +28,34 @@ namespace Oculus.Interaction.Input
     {
         [Header("OVR Data Source")]
         [SerializeField, Interface(typeof(IOVRCameraRigRef))]
-        private MonoBehaviour _cameraRigRef;
+        private UnityEngine.Object _cameraRigRef;
+
+        [SerializeField]
+        private bool _processLateUpdates = false;
 
         [Header("Shared Configuration")]
         [SerializeField]
         private Handedness _handedness;
 
         [SerializeField, Interface(typeof(ITrackingToWorldTransformer))]
-        private MonoBehaviour _trackingToWorldTransformer;
+        private UnityEngine.Object _trackingToWorldTransformer;
         private ITrackingToWorldTransformer TrackingToWorldTransformer;
 
         [SerializeField, Interface(typeof(IHandSkeletonProvider))]
-        private MonoBehaviour _handSkeletonProvider;
+        private UnityEngine.Object _handSkeletonProvider;
         private IHandSkeletonProvider HandSkeletonProvider;
 
-        [SerializeField, Interface(typeof(IDataSource<HmdDataAsset>))]
-        private MonoBehaviour _hmdData;
-        private IDataSource<HmdDataAsset> HmdData;
+        public bool ProcessLateUpdates
+        {
+            get
+            {
+                return _processLateUpdates;
+            }
+            set
+            {
+                _processLateUpdates = value;
+            }
+        }
 
         private readonly HandDataAsset _handDataAsset = new HandDataAsset();
         private OVRHand _ovrHand;
@@ -55,7 +74,6 @@ namespace Oculus.Interaction.Input
         protected virtual void Awake()
         {
             TrackingToWorldTransformer = _trackingToWorldTransformer as ITrackingToWorldTransformer;
-            HmdData = _hmdData as IDataSource<HmdDataAsset>;
             CameraRigRef = _cameraRigRef as IOVRCameraRigRef;
             HandSkeletonProvider = _handSkeletonProvider as IHandSkeletonProvider;
 
@@ -64,11 +82,10 @@ namespace Oculus.Interaction.Input
 
         protected override void Start()
         {
-            base.Start();
-            Assert.IsNotNull(CameraRigRef);
-            Assert.IsNotNull(TrackingToWorldTransformer);
-            Assert.IsNotNull(HandSkeletonProvider);
-            Assert.IsNotNull(HmdData);
+            this.BeginStart(ref _started, () => base.Start());
+            this.AssertField(CameraRigRef, nameof(CameraRigRef));
+            this.AssertField(TrackingToWorldTransformer, nameof(TrackingToWorldTransformer));
+            this.AssertField(HandSkeletonProvider, nameof(HandSkeletonProvider));
             if (_handedness == Handedness.Left)
             {
                 _ovrHand = CameraRigRef.LeftHand;
@@ -81,7 +98,38 @@ namespace Oculus.Interaction.Input
             }
 
             UpdateConfig();
+
+            this.EndStart(ref _started);
         }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (_started)
+            {
+                CameraRigRef.WhenInputDataDirtied += HandleInputDataDirtied;
+            }
+        }
+
+        protected override void OnDisable()
+        {
+            if (_started)
+            {
+                CameraRigRef.WhenInputDataDirtied -= HandleInputDataDirtied;
+            }
+
+            base.OnDisable();
+        }
+
+        private void HandleInputDataDirtied(bool isLateUpdate)
+        {
+            if (isLateUpdate && !_processLateUpdates)
+            {
+                return;
+            }
+            MarkInputDataRequiresUpdate();
+        }
+
 
         private HandDataSourceConfig Config
         {
@@ -106,7 +154,6 @@ namespace Oculus.Interaction.Input
             Config.Handedness = _handedness;
             Config.TrackingToWorldTransformer = TrackingToWorldTransformer;
             Config.HandSkeleton = HandSkeletonProvider[_handedness];
-            Config.HmdData = HmdData;
         }
 
         protected override void UpdateData()
@@ -217,13 +264,12 @@ namespace Oculus.Interaction.Input
 
         public void InjectAllFromOVRHandDataSource(UpdateModeFlags updateMode, IDataSource updateAfter,
             Handedness handedness, ITrackingToWorldTransformer trackingToWorldTransformer,
-            IHandSkeletonProvider handSkeletonProvider, IDataSource<HmdDataAsset> hmdData)
+            IHandSkeletonProvider handSkeletonProvider)
         {
             base.InjectAllDataSource(updateMode, updateAfter);
             InjectHandedness(handedness);
             InjectTrackingToWorldTransformer(trackingToWorldTransformer);
             InjectHandSkeletonProvider(handSkeletonProvider);
-            InjectHmdData(hmdData);
         }
 
         public void InjectHandedness(Handedness handedness)
@@ -233,20 +279,14 @@ namespace Oculus.Interaction.Input
 
         public void InjectTrackingToWorldTransformer(ITrackingToWorldTransformer trackingToWorldTransformer)
         {
-            _trackingToWorldTransformer = trackingToWorldTransformer as MonoBehaviour;
+            _trackingToWorldTransformer = trackingToWorldTransformer as UnityEngine.Object;
             TrackingToWorldTransformer = trackingToWorldTransformer;
         }
 
         public void InjectHandSkeletonProvider(IHandSkeletonProvider handSkeletonProvider)
         {
-            _handSkeletonProvider = handSkeletonProvider as MonoBehaviour;
+            _handSkeletonProvider = handSkeletonProvider as UnityEngine.Object;
             HandSkeletonProvider = handSkeletonProvider;
-        }
-
-        public void InjectHmdData(IDataSource<HmdDataAsset> hmdData)
-        {
-            _hmdData = hmdData as MonoBehaviour;
-            HmdData = hmdData;
         }
 
         #endregion

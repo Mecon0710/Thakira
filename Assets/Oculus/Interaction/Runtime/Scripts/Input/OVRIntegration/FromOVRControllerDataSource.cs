@@ -1,14 +1,22 @@
-/************************************************************************************
-Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
-
-Your use of this SDK or tool is subject to the Oculus SDK License Agreement, available at
-https://developer.oculus.com/licenses/oculussdk/
-
-Unless required by applicable law or agreed to in writing, the Utilities SDK distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
-ANY KIND, either express or implied. See the License for the specific language governing
-permissions and limitations under the License.
-************************************************************************************/
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * Licensed under the Oculus SDK License Agreement (the "License");
+ * you may not use the Oculus SDK except in compliance with the License,
+ * which is provided at the time of installation or download, or which
+ * otherwise accompanies this software in either electronic or hard copy form.
+ *
+ * You may obtain a copy of the License at
+ *
+ * https://developer.oculus.com/licenses/oculussdk/
+ *
+ * Unless required by applicable law or agreed to in writing, the Oculus SDK
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -83,19 +91,31 @@ namespace Oculus.Interaction.Input
     {
         [Header("OVR Data Source")]
         [SerializeField, Interface(typeof(IOVRCameraRigRef))]
-        private MonoBehaviour _cameraRigRef;
+        private UnityEngine.Object _cameraRigRef;
+        public IOVRCameraRigRef CameraRigRef { get; private set; }
+
+        [SerializeField]
+        private bool _processLateUpdates = false;
 
         [Header("Shared Configuration")]
         [SerializeField]
         private Handedness _handedness;
 
         [SerializeField, Interface(typeof(ITrackingToWorldTransformer))]
-        private MonoBehaviour _trackingToWorldTransformer;
+        private UnityEngine.Object _trackingToWorldTransformer;
         private ITrackingToWorldTransformer TrackingToWorldTransformer;
 
-        [SerializeField, Interface(typeof(IDataSource<HmdDataAsset>))]
-        private MonoBehaviour _hmdData;
-        private IDataSource<HmdDataAsset> HmdData;
+        public bool ProcessLateUpdates
+        {
+            get
+            {
+                return _processLateUpdates;
+            }
+            set
+            {
+                _processLateUpdates = value;
+            }
+        }
 
         private readonly ControllerDataAsset _controllerDataAsset = new ControllerDataAsset();
         private OVRInput.Controller _ovrController;
@@ -103,8 +123,6 @@ namespace Oculus.Interaction.Input
         private ControllerDataSourceConfig _config;
 
         private OVRPointerPoseSelector _pointerPoseSelector;
-
-        public IOVRCameraRigRef CameraRigRef { get; private set; }
 
         #region OVR Controller Mappings
 
@@ -132,7 +150,6 @@ namespace Oculus.Interaction.Input
         protected void Awake()
         {
             TrackingToWorldTransformer = _trackingToWorldTransformer as ITrackingToWorldTransformer;
-            HmdData = _hmdData as IDataSource<HmdDataAsset>;
             CameraRigRef = _cameraRigRef as IOVRCameraRigRef;
 
             UpdateConfig();
@@ -140,25 +157,53 @@ namespace Oculus.Interaction.Input
 
         protected override void Start()
         {
-            base.Start();
-            Assert.IsNotNull(CameraRigRef);
-            Assert.IsNotNull(TrackingToWorldTransformer);
-            Assert.IsNotNull(HmdData);
+            this.BeginStart(ref _started, () => base.Start());
+            this.AssertField(CameraRigRef, nameof(CameraRigRef));
+            this.AssertField(TrackingToWorldTransformer, nameof(TrackingToWorldTransformer));
             if (_handedness == Handedness.Left)
             {
-                Assert.IsNotNull(CameraRigRef.LeftController);
+                this.AssertField(CameraRigRef.LeftController, nameof(CameraRigRef.LeftController));
                 _ovrControllerAnchor = CameraRigRef.LeftController;
                 _ovrController = OVRInput.Controller.LTouch;
             }
             else
             {
-                Assert.IsNotNull(CameraRigRef.RightController);
+                this.AssertField(CameraRigRef.RightController, nameof(CameraRigRef.RightController));
                 _ovrControllerAnchor = CameraRigRef.RightController;
                 _ovrController = OVRInput.Controller.RTouch;
             }
             _pointerPoseSelector = new OVRPointerPoseSelector(_handedness);
 
             UpdateConfig();
+            this.EndStart(ref _started);
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (_started)
+            {
+                CameraRigRef.WhenInputDataDirtied += HandleInputDataDirtied;
+            }
+        }
+
+        protected override void OnDisable()
+        {
+            if (_started)
+            {
+                CameraRigRef.WhenInputDataDirtied -= HandleInputDataDirtied;
+            }
+
+            base.OnDisable();
+        }
+
+        private void HandleInputDataDirtied(bool isLateUpdate)
+        {
+            if (isLateUpdate && !_processLateUpdates)
+            {
+                return;
+            }
+            MarkInputDataRequiresUpdate();
         }
 
         private ControllerDataSourceConfig Config
@@ -183,13 +228,12 @@ namespace Oculus.Interaction.Input
         {
             Config.Handedness = _handedness;
             Config.TrackingToWorldTransformer = TrackingToWorldTransformer;
-            Config.HmdData = HmdData;
         }
 
         protected override void UpdateData()
         {
             _controllerDataAsset.Config = Config;
-            var worldToTrackingSpace = CameraRigRef.CameraRig.transform.worldToLocalMatrix;
+            var worldToTrackingSpace = TrackingToWorldTransformer.Transform.worldToLocalMatrix;
             Transform ovrController = _ovrControllerAnchor;
 
             _controllerDataAsset.IsDataValid = true;
@@ -218,7 +262,9 @@ namespace Oculus.Interaction.Input
                 }
                 else
                 {
-                    Assert.IsTrue(mapping.IsButton);
+                    this.AssertIsTrue(mapping.IsButton,
+                        $"Element in {AssertUtils.Nicify(nameof(ControllerUsageMappings))} has {AssertUtils.Nicify(nameof(mapping.IsButton))} set to false.");
+
                     usageActive = OVRInput.Get(mapping.Button, controllerMask);
                 }
 
@@ -230,19 +276,21 @@ namespace Oculus.Interaction.Input
 
             // Update poses
 
-            // Convert controller pose from world to tracking space.
-            Pose worldRoot = new Pose(ovrController.position, ovrController.rotation);
-            _controllerDataAsset.RootPose.position = worldToTrackingSpace.MultiplyPoint3x4(worldRoot.position);
-            _controllerDataAsset.RootPose.rotation = worldToTrackingSpace.rotation * worldRoot.rotation;
+            // Root pose, in tracking space.
+            _controllerDataAsset.RootPose = new Pose(
+                OVRInput.GetLocalControllerPosition(_ovrController),
+                OVRInput.GetLocalControllerRotation(_ovrController));
             _controllerDataAsset.RootPoseOrigin = PoseOrigin.RawTrackedPose;
 
-
             // Convert controller pointer pose from local to tracking space.
-            Pose pointerPose = PoseUtils.Multiply(worldRoot, _pointerPoseSelector.LocalPointerPose);
-            _controllerDataAsset.PointerPose.position = worldToTrackingSpace.MultiplyPoint3x4(pointerPose.position);
-            _controllerDataAsset.PointerPose.rotation = worldToTrackingSpace.rotation * pointerPose.rotation;
-            _controllerDataAsset.PointerPoseOrigin = PoseOrigin.RawTrackedPose;
+            Matrix4x4 controllerModelToTracking = Matrix4x4.TRS(
+                _controllerDataAsset.RootPose.position, _controllerDataAsset.RootPose.rotation,
+                Vector3.one);
+            _controllerDataAsset.PointerPose =
+                new Pose(controllerModelToTracking.MultiplyPoint3x4(_pointerPoseSelector.LocalPointerPose.position),
+                    _controllerDataAsset.RootPose.rotation * _pointerPoseSelector.LocalPointerPose.rotation);
 
+            _controllerDataAsset.PointerPoseOrigin = PoseOrigin.RawTrackedPose;
         }
 
         protected override ControllerDataAsset DataAsset => _controllerDataAsset;
@@ -250,13 +298,11 @@ namespace Oculus.Interaction.Input
         #region Inject
 
         public void InjectAllFromOVRControllerDataSource(UpdateModeFlags updateMode, IDataSource updateAfter,
-            Handedness handedness, ITrackingToWorldTransformer trackingToWorldTransformer,
-            IDataSource<HmdDataAsset> hmdData)
+            Handedness handedness, ITrackingToWorldTransformer trackingToWorldTransformer)
         {
             base.InjectAllDataSource(updateMode, updateAfter);
             InjectHandedness(handedness);
             InjectTrackingToWorldTransformer(trackingToWorldTransformer);
-            InjectHmdData(hmdData);
         }
 
         public void InjectHandedness(Handedness handedness)
@@ -266,14 +312,8 @@ namespace Oculus.Interaction.Input
 
         public void InjectTrackingToWorldTransformer(ITrackingToWorldTransformer trackingToWorldTransformer)
         {
-            _trackingToWorldTransformer = trackingToWorldTransformer as MonoBehaviour;
+            _trackingToWorldTransformer = trackingToWorldTransformer as UnityEngine.Object;
             TrackingToWorldTransformer = trackingToWorldTransformer;
-        }
-
-        public void InjectHmdData(IDataSource<HmdDataAsset> hmdData)
-        {
-            _hmdData = hmdData as MonoBehaviour;
-            HmdData = hmdData;
         }
 
         #endregion

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+namespace OneToonTeen
+{
 public class blendshapesshow : MonoBehaviour
 {
     public GameObject Char;
@@ -87,4 +88,5 @@ public class blendshapesshow : MonoBehaviour
         yield return false;
 
     }
+}
 }
