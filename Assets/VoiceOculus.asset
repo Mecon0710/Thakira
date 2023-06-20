@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: VoiceOculus
+  m_EditorClassIdentifier: Facebook.WitAI:Facebook.WitAi.Data.Configuration:WitConfiguration
+  application:
+    witConfiguration: {fileID: 0}
+    name: Built-in Models
+    id: voiceSDK_en
+    lang: en
+    isPrivate: 0
+    createdAt: 
+  configId: 234e40baac5ff4af49160f9a35dfdccb
+  clientAccessToken: HOKEABS7HPIQVSRSVWRPTTV75TQJ5QBP
+  timeoutMS: 10000
+  endpointConfiguration:
+    uriScheme: 
+    authority: 
+    port: 0
+    witApiVersion: 
+    speech: 
+    message: 
+  entities: []
+  intents: []
+  traits: []

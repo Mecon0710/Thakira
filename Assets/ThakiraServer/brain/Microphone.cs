@@ -6,11 +6,11 @@ public class AudioRecorder : MonoBehaviour
 {
     // Variables de configuración
     public int recordingDuration = 45; // Duración de la grabación en segundos
-    private string mp3Path = "audios/input"; // Ruta de la carpeta para guardar el archivo MP3
 
     // Variables internas
     private string micDeviceName; // Nombre del dispositivo de audio
     private string pcmFilePath; // Ruta del archivo PCM temporal
+    private string mp3Path = "audios/input"; // Ruta de la carpeta para guardar el archivo MP3
 
     // Método para iniciar la grabación
     public void StartRecording()
