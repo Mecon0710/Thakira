@@ -1,15 +1,20 @@
+using System;
 using System.Diagnostics;
 using UnityEngine;
+using IronPython.Hosting;
+using IronPython.Runtime;
+using Microsoft.Scripting.Hosting;              
 
-public class PythonScriptRunner : MonoBehaviour
+
+public class PythonScriptRunner : AudioUser
 {
     private string pythonPath = "python3"; // Ruta al ejecutable de Python en tu sistema
-    private string scriptPath = "/Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer/main.py"; // Ruta al archivo de Python que deseas ejecutar /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer
+    private string scriptPath = "main.py"; // Ruta al archivo de Python que deseas ejecutar /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer
     public Animator animator;
 
     private void Awake()
     {
-        UnityEngine.Debug.Log("Entro en RunPythonScript");
+        UnityEngine.Debug.Log("Entro en tunel");
         animator = GetComponent<Animator>();
         RunPythonScript();
 
@@ -17,30 +22,35 @@ public class PythonScriptRunner : MonoBehaviour
 
     private void RunPythonScript()
     {
-        UnityEngine.Debug.Log("Entro en RunPythonScript2");
+        UnityEngine.Debug.Log("Entro en RunPythonScript");
 
         // Crear un motor de ejecución de Python
         var engine = Python.CreateEngine();
 
         // Cargar el script en Python
+        UnityEngine.Debug.Log("Cargo el script en Python");
         var scope = engine.CreateScope();
         var source = engine.CreateScriptSourceFromFile(scriptPath);
         source.Execute(scope);
+        
+        // Obtener la referencia a las funciones en Python
+        UnityEngine.Debug.Log("Obtuvo la referencia a las funciones en Python");
+        var step1 = scope.GetVariable<Func<object>>("step1");
+        var step2 = scope.GetVariable<Func<object>>("step2");
+        var step3 = scope.GetVariable<Func<object>>("step3");
+        var step4 = scope.GetVariable<Func<object>>("step4");
 
-        // Obtener la referencia a la función en Python
-        var function = scope.GetVariable<Func<PythonDictionary, object>>("nombre_de_la_funcion");
+        // Llamar a la funciones en Python en orden de la prueba
+        UnityEngine.Debug.Log("Inicio de la prueba");
+        step1();
+        StartRecording();
+        step2();
+        StartRecording();
+        step3();
+        StartRecording();
+        step4();
 
-        // Crear un diccionario con los argumentos para la función en Python
-        var arguments = new PythonDictionary();
-        arguments["argumento1"] = "valor1";
-        arguments["argumento2"] = 42;
-
-        // Llamar a la función en Python y obtener el resultado
-        var result = function(arguments);
-
-        // Mostrar el resultado
-        Console.WriteLine("Resultado de la función en Python:");
-        Console.WriteLine(result);
+        UnityEngine.Debug.Log("Prueba completada");
     }
 }
 
