@@ -2,14 +2,13 @@ using System;
 using System.Diagnostics;
 using UnityEngine;
 using IronPython.Hosting;
-using IronPython.Runtime;
-using Microsoft.Scripting.Hosting;              
+using IronPython.Runtime;           
 
 
 public class PythonScriptRunner : AudioUser
 {
-    private string pythonPath = "python3"; // Ruta al ejecutable de Python en tu sistema
-    private string scriptPath = "main.py"; // Ruta al archivo de Python que deseas ejecutar /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer
+    //private string pythonPath = "python3"; // Ruta al ejecutable de Python en tu sistema
+    private string scriptPath = "Assets/ThakiraServer/main.py"; // Ruta al archivo de Python que deseas ejecutar /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer
     public Animator animator;
 
     private void Awake()

@@ -1,17 +1,5 @@
 {
   "dependencies": {
-    "com.htc.upm.vive.openxr": {
-      "version": "1.0.10",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.xr.management": "3.2.16",
-        "com.unity.xr.legacyinputhelpers": "2.1.2",
-        "com.unity.inputsystem": "1.1.0-preview.1",
-        "com.unity.xr.openxr": "1.4.2"
-      },
-      "url": "https://npm-registry.vive.com"
-    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -231,7 +219,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.interaction.toolkit": {
-      "version": "2.3.0",
+      "version": "2.3.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -276,17 +264,6 @@
       "dependencies": {
         "com.unity.xr.management": "4.2.0",
         "com.unity.ugui": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.xr.openxr": {
-      "version": "1.7.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.xr.management": "4.0.1",
-        "com.unity.xr.legacyinputhelpers": "2.1.2",
-        "com.unity.inputsystem": "1.4.4"
       },
       "url": "https://packages.unity.com"
     },

@@ -7,7 +7,7 @@ public class animals : MovingEntity
 {
     public Vector3 targetPosition;
     public Vector3 towardsTarget;
-    float wanderRadius = 2f;
+    //float wanderRadius = 2f;
     
     void RecalculateTargetPosition(){
         

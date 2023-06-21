@@ -6603,8 +6603,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76eac2a6764044375baf5af241c9451c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pythonPath: /Users/Meli/opt/anaconda3/bin/python3
-  scriptPath: /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer/brain/main.py
+  recordingDuration: 45
+  animator: {fileID: 0}
 --- !u!4 &434144781
 Transform:
   m_ObjectHideFlags: 0
@@ -9206,8 +9206,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76eac2a6764044375baf5af241c9451c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pythonPath: python3
-  scriptPath: /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer/main.py
+  recordingDuration: 45
+  animator: {fileID: 0}
 --- !u!82 &569900809
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9304,6 +9304,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &569900811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 569900805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6856e00069018483bbe10f286a59d1c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recordingDuration: 45
 --- !u!1 &572112665
 GameObject:
   m_ObjectHideFlags: 0
