@@ -22,9 +22,25 @@ public class PythonScriptRunner : MonoBehaviour
 
     private string[] palabras;
 
+
     private void Start()
     {
+        string[] devices = Microphone.devices;
+        if (devices.Length == 0)
+        {
+            UnityEngine.Debug.Log("No se encontraron dispositivos de entrada de audio.");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Dispositivos de entrada de audio disponibles:");
+
+            for (int i = 0; i < devices.Length; i++)
+            {
+                UnityEngine.Debug.Log("Dispositivo " + i + ": " + devices[i]);
+            }
+        }
         StartCoroutine(startSpeak());
+        
     }
 
     private string startSpeak() {
@@ -32,8 +48,11 @@ public class PythonScriptRunner : MonoBehaviour
         //animator = GetComponent<Animator>();
         // conversacion
         UnityEngine.Debug.Log("GetAudio");
+
         res = GetAudio("hola melissa");
         //UnityEngine.Debug.Log(res);
+
+
 
         /*
         Step1();

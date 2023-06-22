@@ -6603,7 +6603,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76eac2a6764044375baf5af241c9451c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recordingDuration: 45
   animator: {fileID: 0}
 --- !u!4 &434144781
 Transform:
@@ -9187,27 +9186,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 569900805}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a10aa05c9df358f43a1a458b96e39553, type: 3}
+  m_Script: {fileID: 11500000, guid: bc93048cde3dd4463806a4257341b26f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isJaw: 0
   audioSource: {fileID: 569900809}
-  bsIndex: 14
-  aperture: 4
---- !u!114 &569900807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 569900805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76eac2a6764044375baf5af241c9451c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  recordingDuration: 45
-  animator: {fileID: 0}
+  audioClips: []
 --- !u!82 &569900809
 AudioSource:
   m_ObjectHideFlags: 0

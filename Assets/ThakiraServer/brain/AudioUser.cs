@@ -5,7 +5,7 @@ using System.Diagnostics;
 public class AudioUser : MonoBehaviour
 {
     // Variables de configuración
-    public int recordingDuration = 45; // Duración de la grabación en segundos
+    public int recordingDuration = 30; // Duración de la grabación en segundos
 
     // Variables internas
     private string micDeviceName; // Nombre del dispositivo de audio
