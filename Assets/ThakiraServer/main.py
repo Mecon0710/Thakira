@@ -26,6 +26,7 @@ def listen():
 def text_to_audio():
     print("Entre")
     data = request.get_json()
+    print(data)
     message = data['message']
     response = convert.text_to_audio(message)
     return response
