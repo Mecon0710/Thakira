@@ -24,6 +24,7 @@ def listen():
 
 @app.route('/text_to_audio', methods=['POST'])
 def text_to_audio():
+    print("Entre")
     data = request.get_json()
     message = data['message']
     response = convert.text_to_audio(message)
@@ -134,7 +135,7 @@ def step4 ():
     return "Step 4 finalizado"
 
 
-@app.route('/discurso', methods=['POST']) 
+#@app.route('/discurso', methods=['POST']) 
 def main():
     print("Entro")
     convert.text_to_audio("Hola, soy Thakira. El día de hoy te haré una pequeña prueba de memoria. Empecemos!")#OUTPUT
@@ -284,5 +285,4 @@ def main():
     return "Prueba finalizada"
 
 if __name__ == '__main__':
-    #main()
     app.run("0.0.0.0", 8080, False, True, threaded=True)

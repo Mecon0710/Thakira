@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Unity Editor",
+        "type": "unity",
+        "request": "launch",
+        "workspaceFolder": "../../${workspaceFolder}",
+        "projectPath": "../../${workspaceFolder}",
+        "runOn": "unityEditor",
+        "stopOnEntry": false,
+        "sourceMapPathOverrides": {
+          ".*": "../../${workspaceFolder}/Library/PackageCache/com.unity.*@*/Editor/Source/**/*.cs"
+        }
+      }
+    ]
+  }
+  
