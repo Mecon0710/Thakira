@@ -2,7 +2,7 @@ import openai
 
 from conversor import convert
 
-openai.api_key = "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"
+openai.api_key = "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"
 conversation = [{"role": "system", "content": "Eres un asistente de ayuda mental"}]
 
 

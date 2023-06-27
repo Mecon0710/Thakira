@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request 
+from flask import Flask, request, send_file
 from brain import engine
 from conversor import convert
 import time
@@ -29,14 +29,16 @@ def text_to_audio():
     print(data)
     message = data['message']
     response = convert.text_to_audio(message)
-    return response
+    return send_file(response, mimetype='audio/mpeg')
 
 
 @app.route('/audio_to_text', methods=['POST']) 
 def audio_to_text():
+    print("audio to tech recieven message")
     file_audio = request.files['audio']
-    path = './audios/input/voice.mp3'
+    path = './audios/input/voice.wav'
     file_audio.save(path)
+    print(path)
     message = convert.audio_to_text(path)
     return {"response": message}
 

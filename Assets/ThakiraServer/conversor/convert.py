@@ -16,7 +16,7 @@ def audio_to_text(path):
 
 
 def text_to_audio(message, crossfade=100):
-    file = './audios/output/teen.mp3' 
+    file = './audios/output/text_to_audio.mp3' 
     temporal = './audios/output/temp.mp3'
     if type(message) == tuple:
         message = message[0]
@@ -26,8 +26,8 @@ def text_to_audio(message, crossfade=100):
     factor = 1.25
 
     # Guardar el audio generado por gTTS en un archivo temporal
-    tts.save(temporal)
-
+    tts.save(file)
+    """
     try:
         # Cargar el audio con pydub
         audio = AudioSegment.from_file(temporal)
@@ -53,8 +53,9 @@ def text_to_audio(message, crossfade=100):
 
     # Eliminar el archivo temporal
     os.remove(temporal)
+    """
 
-    return "ok"
+    return file
 
 
 
