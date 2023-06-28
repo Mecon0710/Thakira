@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;           
 using Newtonsoft.Json;
 using System.IO;
+using UnityEngine.Android;
 
 public class Message {
     public string message { get; set; }
@@ -26,7 +27,7 @@ public class PythonScriptRunner : MonoBehaviour
 {
     //private string pythonPath = "python3"; // Ruta al ejecutable de Python en tu sistema
     //private string scriptPath = "Assets/ThakiraServer/main.py"; // Ruta al archivo de Python que deseas ejecutar /Users/Meli/Documents/Demo_2/Thakira/Thakira/Assets/ThakiraServer
-    public Animator animator;
+
     public AudioSource audioSource;
     
 
@@ -35,6 +36,7 @@ public class PythonScriptRunner : MonoBehaviour
     private string[] palabras;
     private string palabrasCrude;
 
+    private string IP = "192.168.86.23";
 
     private void Start()
     {
@@ -42,6 +44,7 @@ public class PythonScriptRunner : MonoBehaviour
         
     }
 
+    // Solicitar permiso de grabación de audio en tiempo de ejecución
     private IEnumerator startSpeak() {
         audioSource = GetComponent<AudioSource>();
         UnityEngine.Debug.Log("Entro en main");
@@ -82,7 +85,7 @@ public class PythonScriptRunner : MonoBehaviour
         ask = "Memorízate estas 3 palabras: " + thinker;
         yield return GetAudio(ask, PlayAudio);
         yield return WaitPlay();
-        ask = "Ahora, elige un tema que te guste o interese y del cuál desees conocer su historia.";
+        ask = "Ahora, dime un tema que te guste o interese y del cuál desees conocer su historia.";
         yield return GetAudio(ask, PlayAudio);
         yield return WaitPlay();
         palabras = thinker.Split(',');
@@ -150,7 +153,7 @@ public class PythonScriptRunner : MonoBehaviour
             yield return StartCoroutine(coroutine);
             thinker = (string)coroutine.Current;
         } else {
-            thinker = "No te entendi lo siento,o te preocupes, pasemos a la siguiente pregunta.";
+            thinker = "No te entendi lo siento, no te preocupes, continuemos";
         }
 
         yield return GetAudio(thinker, PlayAudio);
@@ -216,6 +219,7 @@ public class PythonScriptRunner : MonoBehaviour
 private IEnumerator RecordVoiceAndGetText(float waitTime)
     {
         string microphoneDevice = Microphone.devices[0];
+        UnityEngine.Debug.Log("microphoneDevice: " + microphoneDevice);
         // Iniciar la grabación del audio del micrófono
         AudioClip recordedClip = Microphone.Start(microphoneDevice, true, 10, 44100);
         yield return new WaitForSeconds(waitTime);
@@ -235,7 +239,7 @@ IEnumerator GetText(string audioPath)
         WWWForm form = new WWWForm();
         form.AddBinaryData("audio", File.ReadAllBytes(audioPath), "audio.wav", "audio/wav");
          // Crear una instancia de UnityWebRequest
-        UnityWebRequest request = UnityWebRequest.Post("http://localhost:8080/audio_to_text", form);
+        UnityWebRequest request = UnityWebRequest.Post("http://"+IP+":8080/audio_to_text", form);
         // Establecer el formulario como el cuerpo de la solicitud
         request.downloadHandler = new DownloadHandlerBuffer();
 
@@ -274,7 +278,7 @@ IEnumerator Think(string message)
     // Crear un diccionario con los datos que deseas enviar en el cuerpo JSON
     UnityEngine.Debug.Log("Entro en Think");
     // Crear la solicitud POST con el cuerpo JSON
-    UnityWebRequest request = new UnityWebRequest("http://localhost:8080/listen", "POST");
+    UnityWebRequest request = new UnityWebRequest("http://"+IP+":8080/listen", "POST");
     byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
     request.uploadHandler = new UploadHandlerRaw(bodyRaw);
     request.downloadHandler = new DownloadHandlerBuffer();
@@ -300,6 +304,7 @@ IEnumerator Think(string message)
 
 IEnumerator GetAudio(string message, System.Action<AudioClip> callback)
     {
+        
         Message msg = new Message();
         msg.message = message;
         string jsonBody= JsonConvert.SerializeObject(msg);
@@ -307,7 +312,7 @@ IEnumerator GetAudio(string message, System.Action<AudioClip> callback)
         // Crear un diccionario con los datos que deseas enviar en el cuerpo JSON
         UnityEngine.Debug.Log("Entro en GetAudio");
         // Crear la solicitud POST con el cuerpo JSON
-        UnityWebRequest www = new UnityWebRequest("http://localhost:8080/text_to_audio", "POST");
+        UnityWebRequest www = new UnityWebRequest("http://"+IP+":8080/text_to_audio", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         DownloadHandlerAudioClip dHA = new DownloadHandlerAudioClip(string.Empty, AudioType.MPEG);
